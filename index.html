@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4–6 Breathing</title>
+  <style>
+    :root {
+      --bg: #070807;
+      --panel: #101210;
+      --text: #f5f7f4;
+      --muted: #8b928a;
+      --accent: #c8ff4d;
+      --track: #222622;
+      --size: min(68vw, 36vh, 290px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      height: 100dvh;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(200,255,77,.08), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .app {
+      width: min(100%, 430px);
+      height: 100dvh;
+      padding: max(18px, env(safe-area-inset-top)) 22px max(18px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 7vw, 29px);
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .breathing-wrap {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      display: grid;
+      place-items: center;
+      padding: 8px 0;
+    }
+
+    .breathing {
+      position: relative;
+      width: var(--size);
+      height: var(--size);
+      display: grid;
+      place-items: center;
+    }
+    .breath-orb {
+      position: absolute;
+      width: 72%;
+      height: 72%;
+      border-radius: 50%;
+      background: rgba(200,255,77,.14);
+      box-shadow:
+        0 0 48px rgba(200,255,77,.13),
+        0 0 90px rgba(200,255,77,.06);
+      transform: scale(.72);
+      transition-property: transform;
+      transition-timing-function: cubic-bezier(.4,0,.2,1);
+      will-change: transform;
+    }
+
+    .center {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      user-select: none;
+    }
+
+    .phase {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .count {
+      margin-top: 5px;
+      font-size: clamp(44px, 13vw, 56px);
+      line-height: 1;
+      font-weight: 750;
+      letter-spacing: -0.05em;
+    }
+
+    .cue {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .rep-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+      padding: 9px 14px;
+      border: 1px solid rgba(200,255,77,.14);
+      border-radius: 16px;
+      background: rgba(200,255,77,.045);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .rep-number {
+      min-width: 31px;
+      height: 31px;
+      padding: 0 8px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #11150c;
+      font-size: 16px;
+      font-weight: 850;
+      line-height: 1;
+      box-shadow: 0 0 18px rgba(200,255,77,.13);
+    }
+
+    .rep-text {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: .02em;
+    }
+
+    .controls {
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    button {
+      width: 100%;
+      height: 52px;
+      border: 0;
+      border-radius: 18px;
+      background: var(--accent);
+      color: #11150c;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+
+    button:active {
+      transform: scale(.985);
+    }
+
+    .meta {
+      margin-top: 9px;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .dot {
+      color: #444a43;
+    }
+    @media (max-height: 700px) {
+      .app {
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+      }
+
+      .eyebrow { font-size: 10px; }
+      .subtitle { font-size: 12px; }
+      .breathing-wrap { padding: 4px 0; }
+      button { height: 48px; }
+      .meta { margin-top: 6px; font-size: 11px; }
+      .rep-counter { margin-top: 2px; padding: 7px 12px; }
+      .controls { margin-top: 12px; }
+      .rep-number { width: 28px; height: 28px; font-size: 14px; }
+    }
+
+    @media (max-height: 600px) {
+      :root { --size: min(60vw, 32vh, 220px); }
+      .subtitle { display: none; }
+      .cue { font-size: 11px; }
+      .meta { display: none; }
+      .rep-counter { padding: 6px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header style="text-align:center;">
+      <p class="eyebrow">Breathe</p>
+      <h1>4–6 Breathing</h1>
+      <p class="subtitle">Inhale for 4 · Exhale for 6</p>
+    </header>
+
+    <section class="breathing-wrap">
+      <div class="breathing">
+        <div class="breath-orb" id="orb"></div>
+
+        <div class="center">
+          <div class="phase" id="phase">Ready</div>
+          <div class="count" id="count">4</div>
+          <div class="cue" id="cue">Tap start when you're comfortable</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rep-counter" aria-live="polite">
+      <span class="rep-number" id="reps">0</span>
+      <span class="rep-text" id="repLabel">breaths completed</span>
+    </div>
+
+    <section class="controls">
+      <button id="toggle">Start breathing</button>
+      <div class="meta">
+        <span>4 sec inhale</span>
+        <span class="dot">•</span>
+        <span>6 sec exhale</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const phaseEl = document.getElementById("phase");
+    const countEl = document.getElementById("count");
+    const cueEl = document.getElementById("cue");
+    const toggleBtn = document.getElementById("toggle");
+    const orb = document.getElementById("orb");
+    const repsEl = document.getElementById("reps");
+    const repLabelEl = document.getElementById("repLabel");
+
+    let completedReps = 0;
+
+    let running = false;
+    let raf = null;
+    let phaseStart = 0;
+    let currentPhase = "inhale";
+
+    const phases = {
+      inhale: {
+        duration: 4000,
+        label: "Inhale",
+        cue: "Slowly breathe in through your nose",
+        fromScale: 0.72,
+        toScale: 1
+      },
+      exhale: {
+        duration: 6000,
+        label: "Exhale",
+        cue: "Gently let the breath out",
+        fromScale: 1,
+        toScale: 0.72
+      }
+    };
+
+    function easeInOut(t) {
+      return t < 0.5
+        ? 2 * t * t
+        : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    }
+
+    function setOrbScale(scale) {
+      orb.style.transition = "none";
+      orb.style.transform = `scale(${scale})`;
+    }
+
+    function beginPhase(name, timestamp) {
+      currentPhase = name;
+      phaseStart = timestamp;
+
+      const p = phases[name];
+      phaseEl.textContent = p.label;
+      cueEl.textContent = p.cue;
+    }
+
+    function tick(timestamp) {
+      if (!running) return;
+
+      const p = phases[currentPhase];
+      const elapsed = timestamp - phaseStart;
+      const normalized = Math.min(elapsed / p.duration, 1);
+
+      const secondsLeft = Math.max(1, Math.ceil((p.duration - elapsed) / 1000));
+      countEl.textContent = secondsLeft;
+
+      const eased = easeInOut(normalized);
+      const scale = p.fromScale + (p.toScale - p.fromScale) * eased;
+      setOrbScale(scale);
+
+      if (elapsed >= p.duration) {
+        if (currentPhase === "exhale") {
+          completedReps += 1;
+          repsEl.textContent = completedReps;
+          repLabelEl.textContent = completedReps === 1
+            ? "breath completed"
+            : "breaths completed";
+
+          repsEl.animate(
+            [
+              { transform: "scale(1)" },
+              { transform: "scale(1.16)" },
+              { transform: "scale(1)" }
+            ],
+            { duration: 280, easing: "ease-out" }
+          );
+        }
+
+        beginPhase(currentPhase === "inhale" ? "exhale" : "inhale", timestamp);
+      }
+
+      raf = requestAnimationFrame(tick);
+    }
+
+    function start() {
+      running = true;
+      toggleBtn.textContent = "Pause";
+      beginPhase("inhale", performance.now());
+      raf = requestAnimationFrame(tick);
+    }
+
+    function pause() {
+      running = false;
+      cancelAnimationFrame(raf);
+      toggleBtn.textContent = "Resume";
+      phaseEl.textContent = "Paused";
+      cueEl.textContent = "Continue whenever you're ready";
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      if (!running && toggleBtn.textContent === "Start breathing") {
+        start();
+      } else if (running) {
+        pause();
+      } else {
+        start();
+      }
+    });
+  </script>
+</body>
+</html>
