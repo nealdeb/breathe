@@ -1,1140 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#070807" />
-  <title>Breathe · Meditate · Workout</title>
-  <style>
-    :root {
-      --bg:#070807;
-      --text:#f5f7f4;
-      --muted:#8b928a;
-      --accent:#c8ff4d;
-      --panel:rgba(255,255,255,.04);
-      --border:rgba(255,255,255,.075);
-    }
-
-    * { box-sizing:border-box; }
-
-    html,body {
-      margin:0;
-      width:100%;
-      min-height:100%;
-      background:var(--bg);
-    }
-
-    body {
-      height:100dvh;
-      overflow:hidden;
-      color:var(--text);
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:
-        radial-gradient(circle at 50% 27%,rgba(200,255,77,.07),transparent 30%),
-        var(--bg);
-    }
-
-    button,input { font:inherit; }
-    button { -webkit-tap-highlight-color:transparent; }
-
-    .app {
-      width:min(100%,430px);
-      height:100dvh;
-      margin:0 auto;
-      padding:max(14px,env(safe-area-inset-top)) 20px max(14px,env(safe-area-inset-bottom));
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .tabs {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:5px;
-      padding:5px;
-      border:1px solid rgba(255,255,255,.055);
-      border-radius:17px;
-      background:rgba(255,255,255,.045);
-      flex:0 0 auto;
-    }
-
-    .tab {
-      height:40px;
-      border:0;
-      border-radius:12px;
-      background:transparent;
-      color:var(--muted);
-      font-size:12px;
-      font-weight:800;
-      cursor:pointer;
-    }
-
-    .tab.active {
-      background:var(--accent);
-      color:#11150c;
-    }
-
-    .view {
-      flex:1;
-      min-height:0;
-      display:none;
-      flex-direction:column;
-    }
-
-    .view.active { display:flex; }
-
-    .header {
-      text-align:center;
-      padding-top:2px;
-    }
-
-    .eyebrow {
-      margin:0 0 3px;
-      color:var(--accent);
-      font-size:10px;
-      font-weight:850;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-    }
-
-    h1 {
-      margin:0;
-      font-size:clamp(23px,7vw,29px);
-      line-height:1.05;
-      letter-spacing:-.04em;
-    }
-
-    .subtitle {
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .primary {
-      width:100%;
-      height:50px;
-      border:0;
-      border-radius:16px;
-      background:var(--accent);
-      color:#11150c;
-      font-size:14px;
-      font-weight:850;
-      cursor:pointer;
-    }
-
-    .secondary {
-      width:100%;
-      height:48px;
-      border:1px solid var(--border);
-      border-radius:15px;
-      background:var(--panel);
-      color:var(--text);
-      font-size:13px;
-      font-weight:800;
-      cursor:pointer;
-    }
-
-    /* BREATHE */
-    .breathing-wrap {
-      flex:1;
-      min-height:0;
-      display:grid;
-      place-items:center;
-      padding:4px 0;
-    }
-
-    .breathing {
-      position:relative;
-      width:min(68vw,34vh,275px);
-      height:min(68vw,34vh,275px);
-      display:grid;
-      place-items:center;
-    }
-
-    .breath-orb {
-      position:absolute;
-      width:72%;
-      height:72%;
-      border-radius:50%;
-      background:rgba(200,255,77,.14);
-      box-shadow:0 0 48px rgba(200,255,77,.13),0 0 90px rgba(200,255,77,.06);
-      transform:scale(.72);
-      will-change:transform;
-    }
-
-    .center {
-      position:relative;
-      z-index:2;
-      text-align:center;
-      user-select:none;
-    }
-
-    .phase {
-      color:var(--accent);
-      font-size:13px;
-      font-weight:800;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-    }
-
-    .count {
-      margin-top:5px;
-      font-size:clamp(42px,13vw,56px);
-      line-height:1;
-      font-weight:800;
-      letter-spacing:-.05em;
-    }
-
-    .cue {
-      margin-top:7px;
-      color:var(--muted);
-      font-size:11px;
-      max-width:220px;
-    }
-
-    .rep-counter {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:9px;
-      padding:8px 12px;
-      border:1px solid rgba(200,255,77,.12);
-      border-radius:15px;
-      background:rgba(200,255,77,.035);
-    }
-
-    .rep-number {
-      min-width:30px;
-      height:30px;
-      padding:0 8px;
-      display:grid;
-      place-items:center;
-      border-radius:9px;
-      background:var(--accent);
-      color:#11150c;
-      font-size:14px;
-      font-weight:850;
-    }
-
-    .rep-text {
-      color:var(--muted);
-      font-size:11px;
-      font-weight:700;
-    }
-
-    .breath-controls { margin-top:14px; }
-
-    .meta {
-      margin-top:7px;
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      color:var(--muted);
-      font-size:10px;
-    }
-
-    /* MEDITATE */
-    .meditation-body {
-      flex:1;
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:18px;
-      padding:6px 0;
-    }
-
-    .meditation-focus {
-      width:min(82vw,310px);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:24px;
-      padding:16px 0 8px;
-    }
-
-    .timer { text-align:center; }
-
-    .timer-value {
-      font-size:clamp(44px,14vw,60px);
-      line-height:1;
-      font-weight:800;
-      letter-spacing:-.055em;
-    }
-
-    .timer-label {
-      margin-top:7px;
-      color:var(--muted);
-      font-size:11px;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
-
-    .horizon {
-      position:relative;
-      width:82%;
-      height:30px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .horizon::before {
-      content:"";
-      position:absolute;
-      width:100%;
-      height:1px;
-      background:linear-gradient(90deg,transparent,rgba(200,255,77,.12),rgba(200,255,77,.45),rgba(200,255,77,.12),transparent);
-    }
-
-    .horizon-light {
-      width:34%;
-      height:4px;
-      border-radius:999px;
-      background:rgba(200,255,77,.75);
-      box-shadow:0 0 14px rgba(200,255,77,.3),0 0 36px rgba(200,255,77,.13);
-      transform:scaleX(.72);
-      opacity:.72;
-    }
-
-    .meditation-focus.active .horizon-light {
-      animation:horizonBreathe 6s ease-in-out infinite alternate;
-    }
-
-    @keyframes horizonBreathe {
-      from { transform:scaleX(.55); opacity:.55; }
-      to { transform:scaleX(1.35); opacity:1; }
-    }
-
-    .duration-row {
-      width:100%;
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:7px;
-    }
-
-    .duration-btn {
-      height:40px;
-      border:1px solid var(--border);
-      border-radius:12px;
-      background:var(--panel);
-      color:var(--muted);
-      font-size:12px;
-      font-weight:750;
-      cursor:pointer;
-    }
-
-    .duration-btn.active {
-      border-color:rgba(200,255,77,.35);
-      background:rgba(200,255,77,.09);
-      color:var(--accent);
-    }
-
-    .meditation-message {
-      min-height:17px;
-      color:var(--muted);
-      font-size:11px;
-      text-align:center;
-    }
-
-    .meditation-controls {
-      display:grid;
-      grid-template-columns:1fr 50px;
-      gap:9px;
-    }
-
-    .reset {
-      width:50px;
-      height:50px;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:var(--panel);
-      color:var(--text);
-      font-size:18px;
-      cursor:pointer;
-    }
-
-    /* WORKOUT */
-    .workout-header {
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      padding-top:2px;
-    }
-
-    .workout-title-wrap { min-width:0; }
-
-    .workout-title {
-      margin:0;
-      font-size:clamp(23px,7vw,29px);
-      line-height:1.05;
-      letter-spacing:-.04em;
-    }
-
-    .workout-subtitle {
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .icon-btn {
-      width:42px;
-      height:42px;
-      flex:0 0 42px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      background:var(--panel);
-      color:var(--text);
-      font-size:20px;
-      cursor:pointer;
-    }
-
-    .workout-home {
-      flex:1;
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      padding-top:8px;
-    }
-
-    .plan-card {
-      padding:16px;
-      border:1px solid var(--border);
-      border-radius:18px;
-      background:var(--panel);
-    }
-
-    .plan-label {
-      color:var(--accent);
-      font-size:10px;
-      font-weight:850;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-    }
-
-    .plan-title {
-      margin-top:5px;
-      font-size:20px;
-      font-weight:800;
-      letter-spacing:-.03em;
-    }
-
-    .plan-copy {
-      margin-top:6px;
-      color:var(--muted);
-      font-size:11px;
-      line-height:1.45;
-    }
-
-    .workout-actions {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:9px;
-    }
-
-    .exercise-list {
-      flex:1;
-      min-height:0;
-      overflow-y:auto;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      scrollbar-width:none;
-    }
-
-    .exercise-list::-webkit-scrollbar { display:none; }
-
-    .empty-state {
-      flex:1;
-      min-height:140px;
-      display:grid;
-      place-items:center;
-      text-align:center;
-      padding:20px;
-      border:1px dashed rgba(255,255,255,.09);
-      border-radius:18px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.5;
-    }
-
-    .exercise-card {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:12px 13px;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:var(--panel);
-    }
-
-    .exercise-name {
-      font-size:13px;
-      font-weight:800;
-    }
-
-    .exercise-meta {
-      margin-top:4px;
-      color:var(--muted);
-      font-size:10px;
-    }
-
-    .remove-btn {
-      width:32px;
-      height:32px;
-      border:0;
-      border-radius:10px;
-      background:rgba(255,255,255,.05);
-      color:var(--muted);
-      cursor:pointer;
-    }
-
-    .drawer-backdrop,
-    .plan-modal {
-      position:fixed;
-      inset:0;
-      z-index:20;
-      display:none;
-      background:rgba(0,0,0,.6);
-    }
-
-    .drawer-backdrop.open { display:block; }
-
-    .drawer {
-      position:absolute;
-      top:0;
-      right:0;
-      width:min(86vw,360px);
-      height:100%;
-      padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));
-      background:#0d0f0d;
-      border-left:1px solid var(--border);
-      transform:translateX(100%);
-      transition:transform .24s ease;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
-    .drawer-backdrop.open .drawer { transform:translateX(0); }
-
-    .drawer-head {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .drawer-title {
-      font-size:18px;
-      font-weight:800;
-    }
-
-    .drawer-list {
-      flex:1;
-      min-height:0;
-      overflow-y:auto;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      scrollbar-width:none;
-    }
-
-    .drawer-list::-webkit-scrollbar { display:none; }
-
-    .drawer-exercise {
-      width:100%;
-      padding:12px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      background:var(--panel);
-      color:var(--text);
-      text-align:left;
-      cursor:pointer;
-    }
-
-    .drawer-exercise-name {
-      font-size:13px;
-      font-weight:800;
-    }
-
-    .drawer-exercise-meta {
-      margin-top:4px;
-      color:var(--muted);
-      font-size:10px;
-    }
-
-    .plan-modal {
-      z-index:30;
-      place-items:center;
-      padding:20px;
-    }
-
-    .plan-modal.open { display:grid; }
-
-    .plan-sheet {
-      width:min(100%,380px);
-      padding:18px;
-      border:1px solid var(--border);
-      border-radius:20px;
-      background:#0d0f0d;
-    }
-
-    .plan-sheet h2 {
-      margin:0;
-      font-size:20px;
-    }
-
-    .plan-sheet p {
-      margin:7px 0 14px;
-      color:var(--muted);
-      font-size:11px;
-      line-height:1.45;
-    }
-
-    .plan-input {
-      width:100%;
-      height:46px;
-      padding:0 13px;
-      border:1px solid rgba(255,255,255,.09);
-      border-radius:13px;
-      outline:0;
-      background:rgba(255,255,255,.04);
-      color:var(--text);
-      font-size:16px;
-    }
-
-    .plan-input:focus {
-      border-color:rgba(200,255,77,.35);
-    }
-
-    .plan-sheet-actions {
-      margin-top:12px;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:9px;
-    }
-
-    @media(max-height:670px) {
-      .app { gap:8px; }
-      .tab { height:36px; }
-      .subtitle { display:none; }
-      .breathing {
-        width:min(60vw,29vh,220px);
-        height:min(60vw,29vh,220px);
-      }
-      .breath-controls { margin-top:10px; }
-      .meta { display:none; }
-      .meditation-body { gap:12px; }
-      .meditation-focus { gap:15px; padding:8px 0 2px; }
-      .duration-btn { height:37px; }
-      .plan-card { padding:13px; }
-      .workout-home { gap:9px; }
-    }
-
-    @media(prefers-reduced-motion:reduce) {
-      .meditation-focus.active .horizon-light { animation:none; }
-      .drawer { transition:none; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090a0d">
+<title>The Routine</title>
+<style>
+:root{--bg:#090a0d;--panel:#111318;--stroke:#262a33;--text:#f6f7f9;--muted:#8e95a3;--accent:#c9ff45;--accent-dark:#18200a}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 85% -10%,rgba(201,255,69,.1),transparent 28rem),var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{width:min(100%,560px);margin:auto;padding:24px 16px 48px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:20px}
+.eyebrow{font-size:11px;font-weight:850;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}
+h1{margin:0;font-size:30px;letter-spacing:-.045em;line-height:1}
+.subtitle{margin-top:8px;color:var(--muted);font-size:13px}
+.reset{width:42px;height:42px;border:1px solid var(--stroke);border-radius:14px;background:#121419;color:var(--muted)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:18px 2px 10px}
+.section-head strong{font-size:14px}
+.section-head span{font-size:11px;color:var(--muted);font-weight:800}
+.day-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.day-pill{border:1px solid var(--stroke);background:#111318;border-radius:14px;padding:8px 2px;color:var(--muted);text-align:center}
+.day-pill .dow{font-size:9px;font-weight:850;text-transform:uppercase}
+.day-pill .date{font-size:15px;font-weight:900;color:#d7dbe2;margin:2px 0}
+.day-pill .month{font-size:9px;text-transform:uppercase}
+.day-pill.active{border-color:var(--accent);background:var(--accent-dark)}
+.day-pill.active .date{color:var(--accent)}
+.day-pill.has-data:after{content:"";display:block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin:5px auto 0}
+.habit-progress,.progress{height:5px;background:#1c1f26;border-radius:999px;overflow:hidden;margin-bottom:14px}
+.habit-progress>div,.progress>div{height:100%;width:0;background:var(--accent);transition:width .2s ease}
+.habit-list{display:flex;flex-direction:column;gap:9px}
+.habit{background:linear-gradient(180deg,#15171c,#111318);border:1px solid var(--stroke);border-radius:18px;padding:12px 13px;display:flex;align-items:center;gap:12px}
+.habit.done{border-color:rgba(201,255,69,.34)}
+.habit-icon{width:38px;height:38px;display:grid;place-items:center;background:#1d2026;border-radius:12px;font-size:17px;flex:none}
+.habit-copy{flex:1;min-width:0}
+.habit-name{font-size:14px;font-weight:830}
+.habit-meta{color:var(--muted);font-size:11px;margin-top:3px}
+.habit.done .habit-name{color:#aeb79b}
+.habit-check{appearance:none;width:26px;height:26px;flex:none;border-radius:8px;border:1px solid #373d47;background:#171a20;display:grid;place-content:center}
+.habit-check:before{content:"✓";font-size:15px;font-weight:1000;color:#0a0d07;transform:scale(0)}
+.habit-check:checked{background:var(--accent);border-color:var(--accent)}
+.habit-check:checked:before{transform:scale(1)}
+.workout-section{display:none;margin-top:24px}
+.workout-section.visible{display:block}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;background:#101216;border:1px solid var(--stroke);padding:5px;border-radius:16px;position:sticky;top:8px;z-index:10}
+.tab{border:0;border-radius:11px;padding:10px 7px;background:transparent;color:#777e8c;font-size:12px;font-weight:800}
+.tab.active{background:var(--accent);color:#0b0d08}
+.session{margin:18px 0 14px;display:flex;justify-content:space-between;align-items:flex-end}
+.day-label{color:var(--muted);font-size:12px;margin-bottom:4px}
+.day-title{font-size:21px;font-weight:850}
+.progress-copy{color:var(--muted);font-size:12px;font-weight:700}
+.workout-list{display:flex;flex-direction:column;gap:12px}
+.exercise{background:linear-gradient(180deg,#15171c,#111318);border:1px solid var(--stroke);border-radius:20px;overflow:hidden}
+.exercise.done{border-color:rgba(201,255,69,.42)}
+.exercise-head{display:flex;gap:12px;padding:16px;align-items:flex-start;cursor:pointer}
+.num{width:32px;height:32px;display:grid;place-items:center;background:#20232a;border-radius:10px;color:#aeb4c0;font-size:12px;font-weight:900;flex:none}
+.exercise.done .num{background:var(--accent-dark);color:var(--accent)}
+.exercise-info{flex:1;min-width:0}
+.exercise-name{font-size:16px;font-weight:820}
+.target{color:var(--muted);font-size:12px;margin-top:5px}
+.exercise-check{width:34px;height:34px;border:1px solid #343944;border-radius:12px;background:#181b21;color:transparent;display:grid;place-items:center;font-size:18px;font-weight:1000;flex:none}
+.exercise.done .exercise-check{background:var(--accent);border-color:var(--accent);color:#0b0e08}
+.sets{display:none;border-top:1px solid var(--stroke);padding:10px 12px 14px}
+.sets.expanded{display:block}
+.set-header,.set-row{display:grid;grid-template-columns:38px 1fr 1fr 44px;gap:8px;align-items:center}
+.set-header{padding:1px 3px 7px;color:#69707d;font-size:10px;font-weight:850;text-transform:uppercase}
+.set-row{padding:5px 0}
+.set-no{color:#777f8d;font-size:12px;font-weight:850;text-align:center}
+.field{height:40px;border:1px solid #292d36;background:#0d0f13;border-radius:11px;color:var(--text);padding:0 10px;width:100%;outline:none;text-align:center;font-weight:750}
+.set-check{width:40px;height:40px;border:1px solid #2d323c;border-radius:11px;background:#1a1d23;color:#747c89;display:grid;place-items:center;font-size:17px;font-weight:900}
+.set-row.completed .field{color:#69705e;background:#11150c;border-color:#202917}
+.set-row.completed .set-check{background:var(--accent);color:#090c06;border-color:var(--accent)}
+.set-actions{display:flex;gap:8px;margin-top:9px}
+.add-set{flex:1;height:38px;border:1px dashed #373d48;border-radius:11px;background:transparent;color:#a6acb7;font-size:12px;font-weight:800}
+.remove-set{height:38px;border:0;padding:0 12px;border-radius:11px;background:#1c1719;color:#b47b82;font-size:12px;font-weight:800}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:flex-end;justify-content:center;padding:16px;z-index:100}
+.modal-backdrop.show{display:flex}
+.modal{width:min(100%,520px);background:#15171c;border:1px solid #2a2f38;border-radius:22px;padding:18px}
+.modal h2{font-size:19px;margin:0 0 6px}
+.modal p{font-size:12px;color:var(--muted);margin:0 0 16px}
+.modal-input-wrap{display:flex;align-items:center;gap:10px;background:#0d0f13;border:1px solid #2a2f38;border-radius:14px;padding:0 12px}
+.modal-input{width:100%;height:48px;background:transparent;border:0;outline:0;color:#fff;font-size:18px;font-weight:800}
+.modal-unit{color:var(--muted);font-size:12px;font-weight:800}
+.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.modal-actions button{height:44px;border-radius:12px;font-weight:850}
+.cancel{border:1px solid #30353f;background:#171a20;color:#aeb4c0}
+.save-btn{border:0;background:var(--accent);color:#0b0d08}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#f3f6ea;color:#10120d;padding:10px 14px;border-radius:12px;font-size:12px;font-weight:850;opacity:0;pointer-events:none;transition:.22s ease;z-index:120}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.footer-note{margin:18px 4px 0;color:#656b76;font-size:11px;text-align:center}
+@media(max-width:390px){.app{padding-left:12px;padding-right:12px}.day-strip{gap:4px}.set-header,.set-row{grid-template-columns:32px 1fr 1fr 40px;gap:6px}}
+</style>
 </head>
 <body>
-  <main class="app">
-    <nav class="tabs" aria-label="App sections">
-      <button class="tab active" id="breatheTab" type="button">Breathe</button>
-      <button class="tab" id="meditateTab" type="button">Meditate</button>
-      <button class="tab" id="workoutTab" type="button">Workout</button>
-    </nav>
-
-    <section class="view active" id="breatheView">
-      <header class="header">
-        <p class="eyebrow">Breathe</p>
-        <h1>4–6 Breathing</h1>
-        <p class="subtitle">Inhale for 4 · Exhale for 6</p>
-      </header>
-
-      <div class="breathing-wrap">
-        <div class="breathing">
-          <div class="breath-orb" id="breathOrb"></div>
-          <div class="center">
-            <div class="phase" id="phase">Ready</div>
-            <div class="count" id="count">4</div>
-            <div class="cue" id="cue">Tap start when you're comfortable</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="rep-counter" aria-live="polite">
-        <span class="rep-number" id="reps">0</span>
-        <span class="rep-text" id="repLabel">breaths completed</span>
-      </div>
-
-      <div class="breath-controls">
-        <button class="primary" id="breathToggle" type="button">Start breathing</button>
-        <div class="meta">
-          <span>4 sec inhale</span><span>•</span><span>6 sec exhale</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="view" id="meditateView">
-      <header class="header">
-        <p class="eyebrow">Meditate</p>
-        <h1>Quiet Time</h1>
-        <p class="subtitle">Sit comfortably · Relax your shoulders · Observe</p>
-      </header>
-
-      <div class="meditation-body">
-        <div class="meditation-focus" id="meditationFocus">
-          <div class="timer">
-            <div class="timer-value" id="timerValue">05:00</div>
-            <div class="timer-label" id="timerLabel">Ready</div>
-          </div>
-          <div class="horizon" aria-hidden="true">
-            <span class="horizon-light"></span>
-          </div>
-        </div>
-
-        <div class="duration-row">
-          <button class="duration-btn active" type="button" data-minutes="5">5 min</button>
-          <button class="duration-btn" type="button" data-minutes="10">10 min</button>
-          <button class="duration-btn" type="button" data-minutes="15">15 min</button>
-          <button class="duration-btn" type="button" data-minutes="20">20 min</button>
-        </div>
-
-        <div class="meditation-message" id="meditationMessage">
-          Let thoughts come and go without following them.
-        </div>
-      </div>
-
-      <div class="meditation-controls">
-        <button class="primary" id="meditateToggle" type="button">Start meditation</button>
-        <button class="reset" id="meditateReset" type="button" aria-label="Reset meditation">↺</button>
-      </div>
-    </section>
-
-    <section class="view" id="workoutView">
-      <div class="workout-header">
-        <div class="workout-title-wrap">
-          <p class="eyebrow">Train</p>
-          <h1 class="workout-title">Workout Tracker</h1>
-          <p class="workout-subtitle">Build your session and track exercises.</p>
-        </div>
-        <button class="icon-btn" id="openExerciseDrawer" type="button" aria-label="Add exercises">＋</button>
-      </div>
-
-      <div class="workout-home">
-        <div class="plan-card">
-          <div class="plan-label">Current plan</div>
-          <div class="plan-title" id="currentPlanName">No plan yet</div>
-          <div class="plan-copy" id="currentPlanCopy">
-            Create a plan or add exercises directly to today's workout.
-          </div>
-        </div>
-
-        <div class="workout-actions">
-          <button class="primary" id="createPlanBtn" type="button">Create Plan</button>
-          <button class="secondary" id="addExerciseBtn" type="button">Add Exercise</button>
-        </div>
-
-        <div class="exercise-list" id="workoutExerciseList"></div>
-      </div>
-    </section>
-  </main>
-
-  <div class="drawer-backdrop" id="exerciseDrawerBackdrop" aria-hidden="true">
-    <aside class="drawer" role="dialog" aria-modal="true" aria-label="Exercise drawer">
-      <div class="drawer-head">
-        <div class="drawer-title">Add Exercises</div>
-        <button class="icon-btn" id="closeExerciseDrawer" type="button" aria-label="Close exercise drawer">×</button>
-      </div>
-      <div class="drawer-list" id="drawerExerciseList"></div>
-    </aside>
+<main class="app">
+<header class="topbar">
+  <div>
+    <div class="eyebrow">Daily system</div>
+    <h1>The Routine.</h1>
+    <div class="subtitle">Track the day. Keep the streak moving.</div>
   </div>
+  <button class="reset" id="resetDayBtn">↻</button>
+</header>
 
-  <div class="plan-modal" id="planModal" aria-hidden="true">
-    <div class="plan-sheet" role="dialog" aria-modal="true">
-      <h2>Create Plan</h2>
-      <p>Name your plan. You can then add exercises from the side drawer.</p>
-      <input class="plan-input" id="planNameInput" type="text" maxlength="32" placeholder="e.g. Push Day" />
-      <div class="plan-sheet-actions">
-        <button class="secondary" id="cancelPlanBtn" type="button">Cancel</button>
-        <button class="primary" id="savePlanBtn" type="button">Create</button>
-      </div>
+<div class="section-head"><strong>Daily Tracker</strong><span id="selectedDateLabel"></span></div>
+<div class="day-strip" id="dayStrip"></div>
+<div class="habit-progress"><div id="habitProgressBar"></div></div>
+
+<section class="habit-list">
+  <label class="habit" id="habit-walk">
+    <div class="habit-icon">🚶</div>
+    <div class="habit-copy"><div class="habit-name">Morning Walk</div><div class="habit-meta" id="walkMeta">Outdoor walk</div></div>
+    <input class="habit-check" id="walkDone" type="checkbox">
+  </label>
+
+  <label class="habit" id="habit-breakfast">
+    <div class="habit-icon">🍳</div>
+    <div class="habit-copy"><div class="habit-name">Breakfast</div><div class="habit-meta">Start fueled</div></div>
+    <input class="habit-check" id="breakfastDone" type="checkbox">
+  </label>
+
+  <label class="habit" id="habit-meds">
+    <div class="habit-icon">💊</div>
+    <div class="habit-copy"><div class="habit-name">Take Meds</div><div class="habit-meta">Daily medication check</div></div>
+    <input class="habit-check" id="medsDone" type="checkbox">
+  </label>
+
+  <label class="habit" id="habit-workout">
+    <div class="habit-icon">🏋️</div>
+    <div class="habit-copy"><div class="habit-name">Start Workout</div><div class="habit-meta">Opens workout tracker below</div></div>
+    <input class="habit-check" id="workoutDone" type="checkbox">
+  </label>
+
+  <label class="habit" id="habit-study">
+    <div class="habit-icon">📚</div>
+    <div class="habit-copy"><div class="habit-name">Study</div><div class="habit-meta" id="studyMeta">20-minute focus blocks</div></div>
+    <input class="habit-check" id="studyDone" type="checkbox">
+  </label>
+
+  <label class="habit" id="habit-app">
+    <div class="habit-icon">⚡</div>
+    <div class="habit-copy"><div class="habit-name">App Work</div><div class="habit-meta">Make one meaningful improvement</div></div>
+    <input class="habit-check" id="appDone" type="checkbox">
+  </label>
+</section>
+
+<section class="workout-section" id="workoutSection">
+  <div class="section-head"><strong>Workout</strong><span>Tap exercise to expand</span></div>
+  <nav class="tabs" id="tabs"></nav>
+  <section class="session">
+    <div><div class="day-label" id="dayLabel"></div><div class="day-title" id="dayTitle"></div></div>
+    <div class="progress-copy" id="progressCopy"></div>
+  </section>
+  <div class="progress"><div id="progressBar"></div></div>
+  <section class="workout-list" id="workoutList"></section>
+</section>
+
+<div class="footer-note">Daily habits and workout entries are stored locally on this device.</div>
+</main>
+
+<div class="modal-backdrop" id="entryModal">
+  <div class="modal">
+    <h2 id="modalTitle"></h2>
+    <p id="modalHelp"></p>
+    <div class="modal-input-wrap">
+      <input class="modal-input" id="modalInput">
+      <span class="modal-unit" id="modalUnit"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="cancel" id="modalCancel" type="button">Cancel</button>
+      <button class="save-btn" id="modalSave" type="button">Save & complete</button>
     </div>
   </div>
-
-  <script>
-    // Tabs
-    const tabs = {
-      breathe: document.getElementById("breatheTab"),
-      meditate: document.getElementById("meditateTab"),
-      workout: document.getElementById("workoutTab")
-    };
-
-    const views = {
-      breathe: document.getElementById("breatheView"),
-      meditate: document.getElementById("meditateView"),
-      workout: document.getElementById("workoutView")
-    };
-
-    function openView(name) {
-      Object.keys(tabs).forEach(key => {
-        tabs[key].classList.toggle("active", key === name);
-        views[key].classList.toggle("active", key === name);
-      });
-    }
-
-    tabs.breathe.addEventListener("click", () => openView("breathe"));
-    tabs.meditate.addEventListener("click", () => openView("meditate"));
-    tabs.workout.addEventListener("click", () => openView("workout"));
-
-    // Breathe
-    const phaseEl = document.getElementById("phase");
-    const countEl = document.getElementById("count");
-    const cueEl = document.getElementById("cue");
-    const breathToggle = document.getElementById("breathToggle");
-    const breathOrb = document.getElementById("breathOrb");
-    const repsEl = document.getElementById("reps");
-    const repLabelEl = document.getElementById("repLabel");
-
-    let breathRunning = false;
-    let breathRaf = null;
-    let phaseStart = 0;
-    let currentPhase = "inhale";
-    let completedReps = 0;
-
-    const phases = {
-      inhale: {
-        duration: 4000,
-        label: "Inhale",
-        cue: "Slowly breathe in through your nose",
-        fromScale: .72,
-        toScale: 1
-      },
-      exhale: {
-        duration: 6000,
-        label: "Exhale",
-        cue: "Gently let the breath out",
-        fromScale: 1,
-        toScale: .72
-      }
-    };
-
-    function easeInOut(t) {
-      return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
-    }
-
-    function beginPhase(name, timestamp) {
-      currentPhase = name;
-      phaseStart = timestamp;
-      phaseEl.textContent = phases[name].label;
-      cueEl.textContent = phases[name].cue;
-    }
-
-    function breathTick(timestamp) {
-      if (!breathRunning) return;
-
-      const p = phases[currentPhase];
-      const elapsed = timestamp - phaseStart;
-      const progress = Math.min(elapsed / p.duration, 1);
-
-      countEl.textContent = Math.max(1, Math.ceil((p.duration - elapsed) / 1000));
-
-      const eased = easeInOut(progress);
-      const scale = p.fromScale + (p.toScale - p.fromScale) * eased;
-      breathOrb.style.transform = `scale(${scale})`;
-
-      if (elapsed >= p.duration) {
-        if (currentPhase === "exhale") {
-          completedReps += 1;
-          repsEl.textContent = completedReps;
-          repLabelEl.textContent = completedReps === 1 ? "breath completed" : "breaths completed";
-        }
-        beginPhase(currentPhase === "inhale" ? "exhale" : "inhale", timestamp);
-      }
-
-      breathRaf = requestAnimationFrame(breathTick);
-    }
-
-    breathToggle.addEventListener("click", () => {
-      if (breathRunning) {
-        breathRunning = false;
-        cancelAnimationFrame(breathRaf);
-        breathToggle.textContent = "Resume";
-        phaseEl.textContent = "Paused";
-        cueEl.textContent = "Continue whenever you're ready";
-      } else {
-        breathRunning = true;
-        breathToggle.textContent = "Pause";
-        beginPhase("inhale", performance.now());
-        breathRaf = requestAnimationFrame(breathTick);
-      }
-    });
-
-    // Meditation
-    const timerValue = document.getElementById("timerValue");
-    const timerLabel = document.getElementById("timerLabel");
-    const meditationFocus = document.getElementById("meditationFocus");
-    const meditationMessage = document.getElementById("meditationMessage");
-    const meditateToggle = document.getElementById("meditateToggle");
-    const meditateReset = document.getElementById("meditateReset");
-    const durationButtons = [...document.querySelectorAll(".duration-btn")];
-
-    let selectedMinutes = 5;
-    let remaining = 300;
-    let meditationRunning = false;
-    let meditationInterval = null;
-
-    const messages = [
-      "Let thoughts come and go without following them.",
-      "Relax your jaw and soften your shoulders.",
-      "Notice the breath without trying to control it.",
-      "Return gently whenever your mind wanders.",
-      "Nothing to solve. Just notice this moment."
-    ];
-
-    function formatTime(seconds) {
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-    }
-
-    function renderMeditationTime() {
-      timerValue.textContent = formatTime(remaining);
-    }
-
-    function stopMeditationTimer() {
-      if (meditationInterval) clearInterval(meditationInterval);
-      meditationInterval = null;
-    }
-
-    function resetMeditation() {
-      meditationRunning = false;
-      stopMeditationTimer();
-      remaining = selectedMinutes * 60;
-      meditationFocus.classList.remove("active");
-      timerLabel.textContent = "Ready";
-      meditateToggle.textContent = "Start meditation";
-      meditationMessage.textContent = messages[0];
-      renderMeditationTime();
-    }
-
-    meditateToggle.addEventListener("click", () => {
-      if (meditationRunning) {
-        meditationRunning = false;
-        stopMeditationTimer();
-        meditationFocus.classList.remove("active");
-        timerLabel.textContent = "Paused";
-        meditateToggle.textContent = "Resume";
-        meditationMessage.textContent = "Resume when you feel ready.";
-        return;
-      }
-
-      if (remaining <= 0) remaining = selectedMinutes * 60;
-
-      meditationRunning = true;
-      timerLabel.textContent = "Meditating";
-      meditateToggle.textContent = "Pause";
-      meditationFocus.classList.add("active");
-
-      stopMeditationTimer();
-      meditationInterval = setInterval(() => {
-        remaining -= 1;
-
-        if (remaining <= 0) {
-          remaining = 0;
-          renderMeditationTime();
-          stopMeditationTimer();
-          meditationRunning = false;
-          meditationFocus.classList.remove("active");
-          timerLabel.textContent = "Complete";
-          meditateToggle.textContent = "Start again";
-          meditationMessage.textContent = "Session complete. Take a moment before moving.";
-          return;
-        }
-
-        if (remaining % 45 === 0) {
-          const index = Math.floor(remaining / 45) % messages.length;
-          meditationMessage.textContent = messages[index];
-        }
-
-        renderMeditationTime();
-      }, 1000);
-    });
-
-    meditateReset.addEventListener("click", resetMeditation);
-
-    durationButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        if (meditationRunning) return;
-        selectedMinutes = Number(button.dataset.minutes);
-        durationButtons.forEach(b => b.classList.toggle("active", b === button));
-        resetMeditation();
-      });
-    });
-
-    renderMeditationTime();
-
-    // Workout
-    const exerciseDrawerBackdrop = document.getElementById("exerciseDrawerBackdrop");
-    const drawerExerciseList = document.getElementById("drawerExerciseList");
-    const workoutExerciseList = document.getElementById("workoutExerciseList");
-    const currentPlanName = document.getElementById("currentPlanName");
-    const currentPlanCopy = document.getElementById("currentPlanCopy");
-
-    const planModal = document.getElementById("planModal");
-    const planNameInput = document.getElementById("planNameInput");
-
-    const catalog = [
-      ["Push Ups","Chest","3 sets · 10 reps"],
-      ["Dumbbell Press","Chest","3 sets · 10 reps"],
-      ["Lat Pulldown","Back","3 sets · 12 reps"],
-      ["Seated Row","Back","3 sets · 12 reps"],
-      ["Shoulder Press","Shoulders","3 sets · 10 reps"],
-      ["Lateral Raise","Shoulders","3 sets · 12 reps"],
-      ["Biceps Curl","Biceps","3 sets · 12 reps"],
-      ["Triceps Pushdown","Triceps","3 sets · 12 reps"],
-      ["Squat","Legs","3 sets · 10 reps"],
-      ["Leg Press","Legs","3 sets · 12 reps"],
-      ["Plank","Core","3 sets · 30 sec"],
-      ["Treadmill Walk","Cardio","15 min"]
-    ].map(([name,group,detail]) => ({name,group,detail}));
-
-    let selectedExercises = [];
-
-    function openDrawer() {
-      exerciseDrawerBackdrop.classList.add("open");
-      exerciseDrawerBackdrop.setAttribute("aria-hidden","false");
-    }
-
-    function closeDrawer() {
-      exerciseDrawerBackdrop.classList.remove("open");
-      exerciseDrawerBackdrop.setAttribute("aria-hidden","true");
-    }
-
-    function renderDrawer() {
-      drawerExerciseList.innerHTML = "";
-
-      catalog.forEach(exercise => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "drawer-exercise";
-
-        const name = document.createElement("div");
-        name.className = "drawer-exercise-name";
-        name.textContent = exercise.name;
-
-        const meta = document.createElement("div");
-        meta.className = "drawer-exercise-meta";
-        meta.textContent = `${exercise.group} · ${exercise.detail}`;
-
-        button.append(name, meta);
-
-        button.addEventListener("click", () => {
-          selectedExercises.push({
-            ...exercise,
-            id: `${Date.now()}-${Math.random()}`
-          });
-          renderWorkout();
-          closeDrawer();
-        });
-
-        drawerExerciseList.appendChild(button);
-      });
-    }
-
-    function renderWorkout() {
-      workoutExerciseList.innerHTML = "";
-
-      if (selectedExercises.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "empty-state";
-        empty.innerHTML = 'No exercises added yet.<br>Tap <strong style="color:var(--text)">Add Exercise</strong> to build your workout.';
-        workoutExerciseList.appendChild(empty);
-        return;
-      }
-
-      selectedExercises.forEach(exercise => {
-        const card = document.createElement("div");
-        card.className = "exercise-card";
-
-        const main = document.createElement("div");
-        const name = document.createElement("div");
-        name.className = "exercise-name";
-        name.textContent = exercise.name;
-
-        const meta = document.createElement("div");
-        meta.className = "exercise-meta";
-        meta.textContent = `${exercise.group} · ${exercise.detail}`;
-
-        main.append(name, meta);
-
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.className = "remove-btn";
-        remove.textContent = "×";
-        remove.setAttribute("aria-label", `Remove ${exercise.name}`);
-        remove.addEventListener("click", () => {
-          selectedExercises = selectedExercises.filter(item => item.id !== exercise.id);
-          renderWorkout();
-        });
-
-        card.append(main, remove);
-        workoutExerciseList.appendChild(card);
-      });
-    }
-
-    document.getElementById("openExerciseDrawer").addEventListener("click", openDrawer);
-    document.getElementById("addExerciseBtn").addEventListener("click", openDrawer);
-    document.getElementById("closeExerciseDrawer").addEventListener("click", closeDrawer);
-
-    exerciseDrawerBackdrop.addEventListener("click", event => {
-      if (event.target === exerciseDrawerBackdrop) closeDrawer();
-    });
-
-    function openPlanModal() {
-      planModal.classList.add("open");
-      planModal.setAttribute("aria-hidden","false");
-      planNameInput.value = "";
-      setTimeout(() => planNameInput.focus(), 0);
-    }
-
-    function closePlanModal() {
-      planModal.classList.remove("open");
-      planModal.setAttribute("aria-hidden","true");
-    }
-
-    function savePlan() {
-      const name = planNameInput.value.trim();
-      if (!name) {
-        planNameInput.focus();
-        return;
-      }
-
-      currentPlanName.textContent = name;
-      currentPlanCopy.textContent = "Active plan · Add exercises from the side drawer.";
-      closePlanModal();
-    }
-
-    document.getElementById("createPlanBtn").addEventListener("click", openPlanModal);
-    document.getElementById("cancelPlanBtn").addEventListener("click", closePlanModal);
-    document.getElementById("savePlanBtn").addEventListener("click", savePlan);
-
-    planModal.addEventListener("click", event => {
-      if (event.target === planModal) closePlanModal();
-    });
-
-    planNameInput.addEventListener("keydown", event => {
-      if (event.key === "Enter") savePlan();
-    });
-
-    renderDrawer();
-    renderWorkout();
-  </script>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const workout=[
+{day:"Day 1",title:"Chest + Triceps",exercises:[
+["Dumbbell Floor/Bench Press","3 × 8–12",3,"8–12"],
+["Dumbbell Fly","3 × 10–12",3,"10–12"],
+["Overhead Triceps Extension","3 × 10–12",3,"10–12"],
+["Dumbbell Skull Crushers","3 × 10–12",3,"10–12"]]},
+{day:"Day 2",title:"Back + Biceps",exercises:[
+["One-Arm Dumbbell Row","3 × 8–12",3,"8–12"],
+["Bent-Over Dumbbell Row","3 × 8–12",3,"8–12"],
+["Dumbbell Biceps Curl","3 × 10–12",3,"10–12"],
+["Hammer Curl","3 × 10–12",3,"10–12"]]},
+{day:"Day 3",title:"Shoulders + Legs",exercises:[
+["Dumbbell Shoulder Press","3 × 8–12",3,"8–12"],
+["Dumbbell Lateral Raise","3 × 12–15",3,"12–15"],
+["Rear-Delt Fly","3 × 12–15",3,"12–15"],
+["Squat","3 × 8–12",3,"8–12"],
+["Lunges","3 × 10",3,"10"],
+["Calf Raise","3 × 15–20",3,"15–20"]]}
+];
+
+const DAILY_KEY="theRoutineDailyV2";
+const WORKOUT_KEY="dumbbellTrackerV1";
+let selectedDate=todayKey();
+let activeDay=Number(localStorage.getItem(WORKOUT_KEY+"_active"))||0;
+let workoutState=loadWorkout();
+let expanded=[null,null,null];
+let modalType=null;
+
+function todayKey(){
+  const d=new Date();
+  return keyFromDate(d);
+}
+function keyFromDate(d){
+  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+}
+function dateFromKey(k){
+  const [y,m,d]=k.split("-").map(Number);
+  return new Date(y,m-1,d);
+}
+function blankDay(){
+  return {walkDone:false,walkKm:"",breakfastDone:false,medsDone:false,workoutDone:false,studyDone:false,studyBlocks:"",appDone:false};
+}
+function loadDaily(){
+  try{return JSON.parse(localStorage.getItem(DAILY_KEY)||"{}")}catch{return {}}
+}
+function saveDaily(x){localStorage.setItem(DAILY_KEY,JSON.stringify(x))}
+function getRecord(){
+  const all=loadDaily();
+  if(!all[selectedDate]) all[selectedDate]=blankDay();
+  return [all,all[selectedDate]];
+}
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer=setTimeout(()=>t.classList.remove("show"),1200);
+}
+function renderDayStrip(){
+  const root=document.getElementById("dayStrip");
+  const base=dateFromKey(selectedDate);
+  const all=loadDaily();
+  root.innerHTML="";
+  for(let i=-3;i<=3;i++){
+    const d=new Date(base);d.setDate(base.getDate()+i);
+    const key=keyFromDate(d),r=all[key];
+    const has=r&&[r.walkDone,r.breakfastDone,r.medsDone,r.workoutDone,r.studyDone,r.appDone].some(Boolean);
+    const b=document.createElement("button");
+    b.type="button";b.className="day-pill"+(key===selectedDate?" active":"")+(has?" has-data":"");
+    b.innerHTML=`<div class="dow">${d.toLocaleDateString(undefined,{weekday:"short"})}</div><div class="date">${d.getDate()}</div><div class="month">${d.toLocaleDateString(undefined,{month:"short"})}</div>`;
+    b.onclick=()=>{selectedDate=key;renderDaily()};
+    root.appendChild(b);
+  }
+}
+function renderDaily(){
+  const [all,r]=getRecord();saveDaily(all);
+  const d=dateFromKey(selectedDate);
+  document.getElementById("selectedDateLabel").textContent=d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+  const map=[["walk",r.walkDone],["breakfast",r.breakfastDone],["meds",r.medsDone],["workout",r.workoutDone],["study",r.studyDone],["app",r.appDone]];
+  map.forEach(([id,v])=>{
+    document.getElementById(id+"Done").checked=!!v;
+    document.getElementById("habit-"+id).classList.toggle("done",!!v);
+  });
+  document.getElementById("walkMeta").textContent=r.walkDone&&r.walkKm?`${r.walkKm} km outdoor walk`:"Outdoor walk";
+  document.getElementById("studyMeta").textContent=r.studyDone&&r.studyBlocks?`${r.studyBlocks} × 20 min blocks`:"20-minute focus blocks";
+  const done=map.filter(x=>x[1]).length;
+  document.getElementById("habitProgressBar").style.width=`${done/6*100}%`;
+  document.getElementById("workoutSection").classList.toggle("visible",!!r.workoutDone);
+  renderDayStrip();
+}
+function updateSimple(field,value){
+  const [all,r]=getRecord();r[field]=value;saveDaily(all);renderDaily();
+}
+function openMetricModal(type){
+  modalType=type;
+  const [,r]=getRecord();
+  const input=document.getElementById("modalInput");
+  if(type==="walk"){
+    document.getElementById("modalTitle").textContent="Morning Walk";
+    document.getElementById("modalHelp").textContent="How many kilometres did you walk outdoors?";
+    document.getElementById("modalUnit").textContent="km";
+    input.value=r.walkKm||"";input.inputMode="decimal";input.placeholder="2.5";
+  }else{
+    document.getElementById("modalTitle").textContent="Study";
+    document.getElementById("modalHelp").textContent="How many 20-minute study blocks did you complete?";
+    document.getElementById("modalUnit").textContent="blocks";
+    input.value=r.studyBlocks||"";input.inputMode="numeric";input.placeholder="3";
+  }
+  document.getElementById("entryModal").classList.add("show");
+  setTimeout(()=>input.focus(),50);
+}
+function closeModal(){document.getElementById("entryModal").classList.remove("show");modalType=null}
+function saveModal(){
+  const raw=document.getElementById("modalInput").value.trim();
+  const n=Number(raw);
+  if(!raw||!Number.isFinite(n)||n<=0){showToast("Enter a value above 0");return}
+  const [all,r]=getRecord();
+  if(modalType==="walk"){r.walkKm=String(Math.round(n*100)/100);r.walkDone=true}
+  else{r.studyBlocks=String(Math.max(1,Math.min(24,Math.round(n))));r.studyDone=true}
+  saveDaily(all);closeModal();renderDaily();
+}
+document.getElementById("walkDone").onchange=e=>{if(e.target.checked){e.target.checked=false;openMetricModal("walk")}else updateSimple("walkDone",false)};
+document.getElementById("studyDone").onchange=e=>{if(e.target.checked){e.target.checked=false;openMetricModal("study")}else updateSimple("studyDone",false)};
+document.getElementById("breakfastDone").onchange=e=>updateSimple("breakfastDone",e.target.checked);
+document.getElementById("medsDone").onchange=e=>updateSimple("medsDone",e.target.checked);
+document.getElementById("appDone").onchange=e=>updateSimple("appDone",e.target.checked);
+document.getElementById("workoutDone").onchange=e=>{
+  updateSimple("workoutDone",e.target.checked);
+  if(e.target.checked)setTimeout(()=>document.getElementById("workoutSection").scrollIntoView({behavior:"smooth",block:"start"}),80);
+};
+document.getElementById("modalCancel").onclick=closeModal;
+document.getElementById("modalSave").onclick=saveModal;
+document.getElementById("entryModal").onclick=e=>{if(e.target.id==="entryModal")closeModal()};
+document.getElementById("modalInput").onkeydown=e=>{if(e.key==="Enter")saveModal()};
+document.getElementById("resetDayBtn").onclick=()=>{
+  const d=dateFromKey(selectedDate).toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+  if(!confirm(`Reset habits for ${d}?`))return;
+  const all=loadDaily();all[selectedDate]=blankDay();saveDaily(all);renderDaily();showToast("Day reset");
+};
+
+function defaultWorkout(){
+  return workout.map(day=>day.exercises.map(ex=>Array.from({length:ex[2]},()=>({reps:"",weight:"",done:false}))));
+}
+function loadWorkout(){
+  try{return JSON.parse(localStorage.getItem(WORKOUT_KEY))||defaultWorkout()}catch{return defaultWorkout()}
+}
+function saveWorkout(){
+  localStorage.setItem(WORKOUT_KEY,JSON.stringify(workoutState));
+  localStorage.setItem(WORKOUT_KEY+"_active",activeDay);
+}
+function renderTabs(){
+  document.getElementById("tabs").innerHTML=workout.map((d,i)=>`<button class="tab ${i===activeDay?"active":""}" onclick="changeDay(${i})">D${i+1}</button>`).join("");
+}
+function changeDay(i){activeDay=i;saveWorkout();renderWorkout()}
+function renderWorkout(){
+  renderTabs();
+  const day=workout[activeDay];
+  document.getElementById("dayLabel").textContent=day.day;
+  document.getElementById("dayTitle").textContent=day.title;
+  document.getElementById("workoutList").innerHTML=day.exercises.map((ex,e)=>{
+    const sets=workoutState[activeDay][e];
+    const done=sets.length&&sets.every(s=>s.done);
+    return `<article class="exercise ${done?"done":""}">
+      <div class="exercise-head" onclick="toggleExpand(${e})">
+        <div class="num">${String(e+1).padStart(2,"0")}</div>
+        <div class="exercise-info"><div class="exercise-name">${ex[0]}</div><div class="target">Target · ${ex[1]}</div></div>
+        <button class="exercise-check" onclick="event.stopPropagation();toggleExercise(${e})">✓</button>
+      </div>
+      <div class="sets ${expanded[activeDay]===e&&!done?"expanded":""}">
+        <div class="set-header"><span>Set</span><span>Reps</span><span>kg</span><span>Done</span></div>
+        ${sets.map((s,si)=>`<div class="set-row ${s.done?"completed":""}">
+          <div class="set-no">${si+1}</div>
+          <input class="field" inputmode="numeric" placeholder="${ex[3]}" value="${s.reps}" onchange="updateSet(${e},${si},'reps',this.value)">
+          <input class="field" inputmode="decimal" placeholder="—" value="${s.weight}" onchange="updateSet(${e},${si},'weight',this.value)">
+          <button class="set-check" onclick="toggleSet(${e},${si})">✓</button>
+        </div>`).join("")}
+        <div class="set-actions">
+          <button class="add-set" onclick="addSet(${e})">＋ Add set</button>
+          ${sets.length>1?`<button class="remove-set" onclick="removeSet(${e})">Remove</button>`:""}
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+  const sets=workoutState[activeDay].flat();
+  const completed=sets.filter(s=>s.done).length;
+  document.getElementById("progressCopy").textContent=`${completed} / ${sets.length} sets`;
+  document.getElementById("progressBar").style.width=`${sets.length?completed/sets.length*100:0}%`;
+}
+function toggleExpand(e){
+  const sets=workoutState[activeDay][e];
+  if(sets.every(s=>s.done))return;
+  expanded[activeDay]=expanded[activeDay]===e?null:e;
+  renderWorkout();
+}
+function updateSet(e,s,key,value){workoutState[activeDay][e][s][key]=value;saveWorkout()}
+function toggleSet(e,s){
+  workoutState[activeDay][e][s].done=!workoutState[activeDay][e][s].done;
+  if(workoutState[activeDay][e].every(x=>x.done))expanded[activeDay]=null;
+  saveWorkout();renderWorkout();
+}
+function toggleExercise(e){
+  const sets=workoutState[activeDay][e];
+  const done=!sets.every(s=>s.done);
+  sets.forEach(s=>s.done=done);
+  if(done)expanded[activeDay]=null;
+  saveWorkout();renderWorkout();
+}
+function addSet(e){workoutState[activeDay][e].push({reps:"",weight:"",done:false});saveWorkout();renderWorkout()}
+function removeSet(e){if(workoutState[activeDay][e].length>1){workoutState[activeDay][e].pop();saveWorkout();renderWorkout()}}
+
+renderDaily();
+renderWorkout();
+</script>
 </body>
 </html>
